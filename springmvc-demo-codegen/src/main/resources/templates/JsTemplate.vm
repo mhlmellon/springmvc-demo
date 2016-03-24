@@ -1,0 +1,357 @@
+/**
+ * $!{table_name} javascript
+ * @author 
+ * @since $!{nowDate}
+ */
+	var actionType = null;
+	var formWin = null;
+	var errorWin = null;
+	JQ(function() {
+	    lock();
+			var toolbar = [ {
+				id : 'insert$!{domainName}Btn',
+				text : '添加',
+				iconCls : 'icon-add',
+				handler : function() {
+					insert$!{domainName}();
+				}
+			}, {
+				id : 'update$!{domainName}Btn',
+				text : '编辑',
+				iconCls : 'icon-edit',
+				handler : function() {
+					update$!{domainName}();
+				}
+			}, {
+				id : 'delete$!{domainName}Btn',
+				text : '删除',
+				iconCls : 'icon-cancel',
+				handler : function() {
+					delete$!{domainName}();
+				}
+			}, {
+				id : 'view$!{domainName}Btn',
+				text : '查看',
+				iconCls : 'icon-search',
+				handler : function() {
+					view$!{domainName}();
+				}
+			}]
+			
+			/*双击打开详情*/
+			function dblClickRowReply(rowIndex, rowData) {
+					view$!{domainName}();
+				}
+			/*初始化列表*/
+	    EasyUI.grid.loadDatagrid({id : '#ds$!{domainName}List', title : '$!{domainName}列表', url : rootPath + "/$!{domainName}.do?method=query$!{domainName}List",toolbar : toolbar, onDblClickRow : dblClickRowReply});
+			
+		
+			/*初始化错误信息窗口*/
+	    	errorWin = EasyUI.initErrorWin({id : "#ds$!{domainName}ErrorWin",title : "异常信息"});
+			/*初始化表单窗口*/
+			var formWinCloseReply = function(){
+				lock();
+				actionType='';
+			}
+			formWin = EasyUI.initFormWin({id : "#ds$!{domainName}Win", title : "$!{domainName}表单信息", onClose : formWinCloseReply});
+	});
+	
+	function page_onLoad(){
+		
+	}
+	
+	function queryData() {
+		var option = JQ("#ds$!{domainName}List").datagrid("options");
+		var data = JQ('#dsQuery').serializeJson();
+		data["rows"] = option.pageSize;
+		data["page"] = option.pageNumber;
+		JQ("#ds$!{domainName}List").datagrid("load", data);
+	}
+
+	/*刷新列表函数*/
+	function refreshGrid(){
+		JQ("#ds$!{domainName}List").datagrid("reload");
+	}
+	function insert$!{domainName}() {
+		if(!statusCheck('insert$!{domainName}'))
+			return ;
+		actionType = "insert$!{domainName}";
+		unlock();
+		JQ('#ds$!{domainName}Form').form('clear');
+		formWin.window('setTitle', '新增');
+		formWin.window('open');
+	}
+
+	function update$!{domainName}() {
+		if(!statusCheck('update$!{domainName}'))
+			return ;
+		var row = JQ('#ds$!{domainName}List').datagrid('getSelected');
+		if (row == null) {
+			JQ.messager.alert('提示', '请选择要修改的记录!', 'warning');
+		} else {
+			actionType = "update$!{domainName}";
+			JQ('#ds$!{domainName}Form').form('load', row);
+			unlock();
+			formWin.window('setTitle', '修改');
+			formWin.window('open');
+		}
+	}
+	
+	function view$!{domainName}() {
+		if(!statusCheck('view$!{domainName}'))
+			return ;
+		var row = JQ('#ds$!{domainName}List').datagrid('getSelected');
+		if (row == null) {
+			JQ.messager.alert('提示', '请选择要查看的记录!', 'warning');
+		} else {
+			actionType = "update$!{domainName}";
+			JQ('#ds$!{domainName}Form').form('load', row);
+			lock();
+			formWin.window('setTitle', '查看');
+			formWin.window('open');
+		}
+	}
+
+	function delete$!{domainName}() {
+		actionType = "delete$!{domainName}";
+		var row = JQ('#ds$!{domainName}List').datagrid('getSelected');
+		if (row == null) {
+			JQ.messager.alert('提示', '请选择要删除的记录!', 'warning');
+		} else {
+			var params = {};		
+#foreach ($field in $keyColumns)	
+			params.$!{field} = row.$!{field};
+#end	
+			JQ.messager.confirm('提示', '确定删除该记录吗?', function(r) {
+				if(r){
+					EasyUI.ajax({
+				type : "post",
+				url : rootPath + "/$!{domainName}.do?method=" + actionType,
+				data : params,
+				dataType : 'json',
+				success : function(response) {
+					if(response.success){
+						refreshGrid();
+						lock();
+						JQ.messager.alert('提示', '删除成功!');
+						cancel();
+					}else{
+						showError('删除失败', response);
+					}
+				},
+				error : function(data, textStatus) {
+					showError('删除失败', data);
+				}
+			});
+				}
+			});
+		}
+
+	}
+
+	function save() {
+		if (JQ('#ds$!{domainName}Form').form('validate')) {
+			if(!formvalid()){
+				return ;
+			}
+			var data = JQ('#ds$!{domainName}Form').serializeJson();
+					
+			EasyUI.ajax({
+				type : "post",
+				url : rootPath + "/$!{domainName}.do?method=" + actionType,
+				data : data,
+				dataType : 'json',
+				success : function(response) {
+					if(response.success){
+						formWin.window('close');
+						JQ.messager.alert('提示', '保存成功!');
+						lock();
+						cancel();
+						refreshGrid();
+					}else{
+						showError('保存失败', response);
+					}
+				},
+				error : function(data, textStatus) {
+					showError('保存失败', data);
+				}
+			});
+		}
+
+	}
+
+	function lock() {
+		var txtArrs = document.getElementsByTagName('input');
+		for ( var i = 0; i < txtArrs.length; i++) {
+			var txt = txtArrs[i];
+			if (txt.type == 'text') {
+				txt.disabled = true;
+			}
+		}
+		var selectArrs = document.getElementsByTagName('select');
+		for ( var i = 0; i < selectArrs.length; i++) {
+			var txt = selectArrs[i];
+			txt.disabled = true;
+		}
+		JQ('#save').linkbutton({
+			disabled : true
+		});
+		JQ('#cancel').linkbutton({
+			disabled : true
+		});
+		JQ('input', JQ('#dsQuery')).each(function() {
+			this.disabled = false;
+		});
+	}
+	
+	function unlock() {
+		var txtArrs = document.getElementsByTagName('input');
+		for ( var i = 0; i < txtArrs.length; i++) {
+			var txt = txtArrs[i];
+			if (txt.type == 'text') {
+				txt.disabled = false;
+			}
+		}
+		JQ('#save').linkbutton({
+			disabled : false
+		});
+		JQ('#cancel').linkbutton({
+			disabled : false
+		});
+	}
+	
+	function cancel() {
+		lock();
+		actionType='';
+		formWin.window('close');
+	}
+	
+	function formvalid(){
+		var data = JQ('#ds$!{domainName}Form').serializeJson();
+		var flag=true;
+		var msg='';
+		//检验字段非空
+		JQ("input",JQ('#ds$!{domainName}Form')).each(function(){
+			if(this.required=='true'&& this.name){
+				if(!data[this.name]){
+					var label=JQ("label[for='"+this.name+"']",JQ('#ds$!{domainName}Form')).html();					
+					if(label.indexOf('*')>-1){
+						label=label.substring(24,label.indexOf(':'));//*的标签长度
+					}else{
+						label=label.substring(0,label.indexOf(':'));
+					}
+					msg+=label+"不能为空<br/>";
+					flag=false;
+				}
+			}
+		});
+
+		//检验字段长度
+		if(flag){
+			JQ("input",JQ('#ds$!{domainName}Form')).each(function(){
+				if(data[this.name]){
+					var data_length=len(data[this.name]);
+					var require_length=JQ("input[name='"+this.name+"']",JQ('#ds$!{domainName}Form')).attr('length');
+					if(require_length != null || require_length >0){						
+						if(data_length>require_length){
+							var label=JQ("label[for='"+this.name+"']",JQ('#ds$!{domainName}Form')).html();
+							if(label.indexOf('*')>-1){
+								label=label.substring(24,label.indexOf(':'));//*的标签长度
+							}else{
+								label=label.substring(0,label.indexOf(':'));
+							}
+							msg+=label+"长度不能超过"+require_length+"个字符或"+require_length/2+"个字<br/>";
+							flag=false;
+						}
+					}
+				}
+			});
+		}
+		
+		if(!flag){
+			JQ.messager.alert('提示', msg, 'warning');
+		}
+		
+		return flag;
+    }
+
+	function statusCheck(willChangeStatus){
+		if(actionType != ''){
+			if(actionType == willChangeStatus )
+				return false ;
+			if(actionType == 'insert$!{domainName}'){
+				JQ.messager.alert('提示', '请先取消新增操作!', 'warning');
+				return false ;
+			}
+			if(actionType == 'update$!{domainName}'){
+				JQ.messager.alert('提示', '请先取消修改操作!', 'warning');
+				return false ;
+			}
+		}
+		return true ;
+	}
+	
+	/**
+	 * 获取当前状态文字描述
+	 */
+	function getCurrentStatus(){
+		if(actionType == 'insert$!{domainName}'){
+			return '新增操作' ;
+		}
+		if(actionType == 'update$!{domainName}'){
+			return '修改操作' ;
+		}
+		return '' ;
+	}
+
+	function resetDsQuery(){
+		JQ("#dsQuery").form('clear');  
+	}
+
+
+
+	function len(str) {
+		var i, sum;
+		sum = 0;
+		for (i = 0; i < str.length; i++) {
+			if ((str.charCodeAt(i) >= 0) && (str.charCodeAt(i) <= 255)) {
+				sum = sum + 1;
+			} else {
+				sum = sum + 2;
+			}
+		}
+		return sum;
+	}
+
+	/*打印错误信息*/
+	function showError(title, data){
+		EasyUI.showError({winObj : errorWin, title : title, data : data});
+	}
+	//操作列渲染操作按钮
+	function createOperation(value,row,index){
+		var str = "";
+			str += '&nbsp;&nbsp;<a href="#" onclick="clickOperation('
+				+ index
+				+ ', 1);" class="btn_view">查看</a>&nbsp;&nbsp;';
+			str += '<a href="#" onclick="clickOperation('
+					+ index
+					+ ', 2);" class="btn_edit">修改</a>&nbsp;&nbsp;';
+			str += '<a href="#" onclick="clickOperation('
+					+ index
+					+ ', 3);" class="btn_delete">删除</a>';
+		    return str;
+	}
+	//点击操作按钮进行选择操作方法
+	function clickOperation(index, type){
+		var record = $("#ds$!{domainName}List").datagrid("getRows")[index];
+		$('#ds$!{domainName}List').datagrid('selectRecord',record['record_id']);
+		if(type == 1){
+			view$!{domainName}();
+		}else if(type == 2){
+			update$!{domainName}();
+		}else if(type == 3){
+			delete$!{domainName}();
+		}else{
+			return;
+		}
+	}

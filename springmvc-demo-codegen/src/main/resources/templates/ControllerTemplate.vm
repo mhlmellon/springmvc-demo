@@ -1,0 +1,86 @@
+package $!{topLevelPackage}$!{controllerPackage};
+
+import com.mellon.common.domain.result.Result;
+import $!{topLevelPackage}$!{voPackage}.$!{pascalName}$!{voSuffix};
+import $!{topLevelPackage}$!{servicePackage}.$!{pascalName}$!{serviceSuffix};
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.mellon.platform.core.controller.BaseController;
+import com.mellon.common.util.DateTimeUtil;
+import com.mellon.platform.privilege.UserVO;
+import javax.servlet.http.HttpServletRequest;
+/**
+ * $!{table_name}控制器
+ * @author $!{author}
+ * @since $!{nowDate}
+ */
+@Controller
+@RequestMapping("/$!{pascalName}")
+public class $!{pascalName}$!{controllerSuffix} extends BaseController {
+	
+	@Autowired
+	private $!{pascalName}Service $!{camelName}Service;
+
+    public void set$!{pascalName}Service($!{pascalName}Service $!{camelName}Service) {
+        this.$!{camelName}Service = $!{camelName}Service;
+    }
+    /**
+     * 插入
+     * @param $!{camelName}$!{voSuffix}
+     * @param request
+     */
+    @RequestMapping(value="/add",method = RequestMethod.POST)
+    @ResponseBody()
+    public Result<$!{pascalName}$!{voSuffix}> insert$!{pascalName}(@RequestBody $!{pascalName}$!{voSuffix} $!{camelName}$!{voSuffix}, HttpServletRequest request) {
+        return $!{camelName}Service.insertSelective($!{camelName}$!{voSuffix});
+    }
+    
+    /**
+     * 更新
+     * @param $!{camelName}$!{voSuffix}
+     * @param request
+     */
+    @RequestMapping(value="/update",method = RequestMethod.POST)
+    @ResponseBody()
+    public Result<$!{pascalName}$!{voSuffix}> update$!{pascalName}(@RequestBody $!{pascalName}$!{voSuffix} $!{camelName}$!{voSuffix}, HttpServletRequest request) {
+        return $!{camelName}Service.updateByPrimaryKeySelective($!{camelName}$!{voSuffix});
+    }
+    
+    /**
+     * 删除
+     * @param $!{camelName}Id
+     */
+    @RequestMapping(value="/delete",method = RequestMethod.POST)
+    @ResponseBody()
+    public Result<$!{pascalName}$!{voSuffix}> delete$!{pascalName}(@RequestBody Long $!{camelName}Id) {
+        return $!{camelName}Service.deleteByPrimaryKey($!{camelName}Id);
+    }
+    
+    /**
+     * 查询单个
+     * @param $!{camelName}Id
+     */
+    @RequestMapping(value="/get/{$!{camelName}Id}",method = RequestMethod.GET)
+    @ResponseBody()
+    public Result<$!{pascalName}$!{voSuffix}> query$!{pascalName}ById(@PathVariable Long $!{camelName}Id) {
+        return $!{camelName}Service.selectByPrimaryKey($!{camelName}Id);
+    }
+
+
+    /**
+    * 条件查询列表
+    * @param condition
+    * @return
+    */
+    @RequestMapping(value="/list",method = RequestMethod.POST)
+    @ResponseBody()
+    public Result<$!{pascalName}$!{voSuffix}> selectByCondition(@RequestBody $!{pascalName}$!{voSuffix} condition) {
+        return $!{camelName}Service.selectByCondition(condition);
+    }
+}

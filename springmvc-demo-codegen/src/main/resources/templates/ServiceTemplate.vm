@@ -1,0 +1,44 @@
+package $!{topLevelPackage}$!{servicePackage};
+
+import java.util.Map;
+import com.mellon.common.domain.result.Result;
+import $!{topLevelPackage}$!{voPackage}.$!{pascalName}$!{voSuffix};
+
+/**
+ * $!{table_name}服务
+ * @author $!{author}
+ * @since $!{nowDate}
+ */
+public interface $!{pascalName}Service {
+
+    /**
+    * 插入
+    * @param record
+    * @return
+    */
+    Result<$!{pascalName}$!{voSuffix}> insertSelective($!{pascalName}$!{voSuffix} record);
+    /**
+    * 根据ID查询
+    * @param $!{camelName}Id
+    * @return
+    */
+    Result<$!{pascalName}$!{voSuffix}> selectByPrimaryKey(Long $!{camelName}Id);
+    /**
+    * 更新
+    * @param record
+    * @return
+    */
+    Result<$!{pascalName}$!{voSuffix}> updateByPrimaryKeySelective($!{pascalName}$!{voSuffix} record);
+    /**
+    * 根据ID删除
+    * @param $!{camelName}Id
+    * @return
+    */
+    Result<$!{pascalName}$!{voSuffix}> deleteByPrimaryKey(Long $!{camelName}Id);
+    /**
+    * 条件查询列表
+    * @param condition
+    * @return
+    */
+    public Result<$!{pascalName}$!{voSuffix}> selectByCondition($!{pascalName}$!{voSuffix} condition);
+}

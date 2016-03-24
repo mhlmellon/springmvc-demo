@@ -1,0 +1,100 @@
+package $!{topLevelPackage}$!{serviceImplPackage};
+
+import java.util.Map;
+import $!{topLevelPackage}$!{daoPackage}.$!{pascalName}POMapper;
+import $!{topLevelPackage}$!{servicePackage}.$!{pascalName}Service;
+import com.mellon.common.domain.result.Result;
+import $!{topLevelPackage}$!{voPackage}.$!{pascalName}$!{voSuffix};
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+
+/**
+ * $!{table_name}服务实现
+ * @author $!{author}
+ * @since $!{nowDate}
+ */
+@Service
+public class $!{pascalName}$!{serviceImplSuffix} implements $!{pascalName}$!{serviceSuffix}{
+	
+    @Autowired
+	private $!{pascalName}POMapper $!{camelName}DAO;
+
+
+    /**
+    * 插入
+    * @param record
+    * @return
+    */
+    public Result<$!{pascalName}$!{voSuffix}> insertSelective($!{pascalName}$!{voSuffix} record) {
+        Result<$!{pascalName}$!{voSuffix}> result = new Result<$!{pascalName}$!{voSuffix}>();
+        int insertedId=$!{camelName}DAO.insertSelective(record);
+        if(insertedId>0) {
+            result.setSuccess(true);
+            result.setModel(record);
+        }
+        return result;
+    }
+    /**
+    * 根据ID查询
+    * @param $!{camelName}Id
+    * @return
+    */
+    public Result<$!{pascalName}$!{voSuffix}> selectByPrimaryKey(Long $!{camelName}Id) {
+        Result<$!{pascalName}$!{voSuffix}> result = new Result<$!{pascalName}$!{voSuffix}>();
+        $!{pascalName}$!{voSuffix} selected$!{pascalName} = $!{camelName}DAO.selectByPrimaryKey($!{camelName}Id);
+        if(selected$!{pascalName}!=null) {
+            result.setSuccess(true);
+            result.setModel(selected$!{pascalName});
+        }
+        return result;
+    }
+
+    /**
+    * 更新
+    * @param record
+    * @return
+    */
+    public Result<$!{pascalName}$!{voSuffix}> updateByPrimaryKeySelective($!{pascalName}$!{voSuffix} record) {
+        Result<$!{pascalName}$!{voSuffix}> result = new Result<$!{pascalName}$!{voSuffix}>();
+        int updatedRows=$!{camelName}DAO.updateByPrimaryKeySelective(record);
+        if(updatedRows>0) {
+            result.setSuccess(true);
+            result.setModel(record);
+        }
+        return result;
+        
+    }
+
+    /**
+    * 根据ID删除
+    * @param $!{camelName}Id
+    * @return
+    */
+    public Result<$!{pascalName}$!{voSuffix}> deleteByPrimaryKey(Long $!{camelName}Id) {
+        Result<$!{pascalName}$!{voSuffix}> result = new Result<$!{pascalName}$!{voSuffix}>();
+        int deletedRows=$!{camelName}DAO.deleteByPrimaryKey($!{camelName}Id);
+        if(deletedRows == 1) {
+            result.setSuccess(true);
+        }
+        return result;
+    }
+
+    /**
+    * 条件查询列表
+    * @param condition
+    * @return
+    */
+    public Result<$!{pascalName}$!{voSuffix}> selectByCondition($!{pascalName}$!{voSuffix} condition) {
+        Result<$!{pascalName}$!{voSuffix}> result = new Result<$!{pascalName}$!{voSuffix}>();
+            PageHelper.startPage(condition.getPagingQuery().getPageIndex(), condition.getPagingQuery().getPageSize());
+            List<$!{pascalName}$!{voSuffix}> resultList = $!{camelName}DAO.selectByCondition(condition);
+            PageInfo<$!{pascalName}$!{voSuffix}> pageInfo = new PageInfo<>(resultList);
+            result.setSuccess(true);
+            result.setModels(resultList);
+            result.setPaging(pageInfo);
+            return result;
+    }
+    
+}

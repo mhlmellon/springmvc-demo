@@ -1,0 +1,11 @@
+package $!{topLevelPackage}$!{voPackage};
+
+import $!{topLevelPackage}$!{domainPackage}.$!{pascalName}$!{domainSuffix};
+/**
+* $!{table_name}VO
+* @author $!{author}
+* @since $!{nowDate}
+*/
+public class $!{pascalName}$!{voSuffix} extends $!{pascalName}PO {
+
+}

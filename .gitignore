@@ -1,0 +1,13 @@
+/**/*.iml
+/.idea
+*.iml
+/target/
+*_my.properties
+*_my.xml
+/my-codegen
+.checkstyle
+.pmd
+rebel.xml
+*/bin/*
+velocity.log
+ 
